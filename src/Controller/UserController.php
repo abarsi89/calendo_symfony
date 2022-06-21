@@ -39,7 +39,7 @@ class UserController extends AbstractController
         return new Response('Saved new user with id '.$user->getId());
     }
 
-    public function showUser(ManagerRegistry $doctrine, int $id): Response
+    public function showUser(ManagerRegistry $doctrine, string $id): Response
     {
         $user = $doctrine->getRepository(User::class)->find($id);
 

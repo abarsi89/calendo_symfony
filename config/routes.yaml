@@ -2,14 +2,28 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
+app_homepage:
+    path: /
+    controller: App\Controller\UserController::index
+
 login:
     path:       /login
-    controller: App\Controller\LoginController::index
+    controller: App\Controller\LoginController::login
+    methods:    GET|POST
+
+logout:
+    path:       /logout
+    controller: App\Controller\LoginController::logout
     methods:    GET|HEAD
 
 registration:
     path:       /register
-    controller: App\Controller\RegisterController::index
+    controller: App\Controller\RegistrationController::register
+    methods:    GET|POST
+
+email_verification:
+    path:       /verify/email
+    controller: App\Controller\RegistrationController::verifyUserEmail
     methods:    GET|POST
 
 user:

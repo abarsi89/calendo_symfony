@@ -63,4 +63,16 @@ class UserRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function checkLogin(string $email, string $password): bool
+    {
+        $qb = $this->createQueryBuilder('user')
+            ->from('App\Entity\User', 'u')
+            ->where('u.email = :email')
+            ->setParameter('email', $email);
+
+        $query = $qb->getQuery();
+
+        return (!$query->execute());
+    }
 }

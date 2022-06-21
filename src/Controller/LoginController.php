@@ -2,54 +2,31 @@
 
 namespace App\Controller;
 
-use App\Entity\Login;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class LoginController extends AbstractController
 {
-    /**
-     * @Route("/login", name="app_login")
-     */
-    public function index(): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        return $this->render('login/index.html.twig', [
-            'controller_name' => 'LoginController',
-        ]);
+        // if ($this->getUser()) {
+        //     return $this->redirectToRoute('target_path');
+        // }
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('login/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
     }
 
-    public function register(ManagerRegistry $doctrine, Request $request): Response
+    public function logout(): void
     {
-        var_dump($request);die();
-        $entityManager = $doctrine->getManager();
-
-        $user = new User();
-        $user->setEmail('admin2@calendo.hu');
-        $user->setName('Admin2');
-        $user->setCreatedAt(new \DateTimeImmutable());
-
-        // tell Doctrine you want to (eventually) save the Product (no queries yet)
-        $entityManager->persist($user);
-
-        // actually executes the queries (i.e. the INSERT query)
-        $entityManager->flush();
-
-        $registration = new Login();
-        $registration->setUserId($user->getId());
-
-        $password = password_hash('ssdfsd', Login::HASH_ALGORITHM);
-        $registration->setPassword($password);
-
-        // tell Doctrine you want to (eventually) save the Product (no queries yet)
-        $entityManager->persist($registration);
-
-        // actually executes the queries (i.e. the INSERT query)
-        $entityManager->flush();
-
-        return new Response('Saved new registration with id '.$registration->getId());
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }
