@@ -10,6 +10,8 @@
         "doctrine/doctrine-bundle": "^2.6",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.12",
+        "rewieer/taskschedulerbundle": "^0.10.0",
+        "sensio/framework-extra-bundle": "^6.2",
         "symfony/console": "*",
         "symfony/dotenv": "*",
         "symfony/flex": "^1.17|^2",

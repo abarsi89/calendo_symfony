@@ -75,4 +75,30 @@ class UserRepository extends ServiceEntityRepository
 
         return (!$query->execute());
     }
+
+    public function getUnverifiedUsers()
+    {
+        $qb = $this->createQueryBuilder('user')
+            ->from('App\Entity\User', 'u')
+            ->where('u.isVerified = NULL')
+            ->andWhere('u.createdAt < :time')
+            ->setParameter('time', (new \DateTime())->modify('-1 day')->format('Y-m-d H:i:s'));
+
+        $query = $qb->getQuery();
+
+        return $query->execute();
+    }
+
+    public function deleteUnverifiedUsers()
+    {
+        $qb = $this->createQueryBuilder('user')
+            ->delete('App\Entity\User', 'u');
+//            ->where('u.is_verified = NULL')
+//            ->andWhere('u.created_at < :time')
+//            ->setParameter('time', (new \DateTime())->modify('-1 day')->format('Y-m-d H:i:s'));
+
+        $query = $qb->getQuery();
+
+        return $query->execute();
+    }
 }

@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vendor index{% endblock %}
+
+{% block body %}
+    <h1>Vendor index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Vendor_id</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Primary_country</th>
+                <th>Primary_postalcode</th>
+                <th>Primary_city</th>
+                <th>Primary_address</th>
+                <th>Billing_country</th>
+                <th>Billing_postalcode</th>
+                <th>Billing_city</th>
+                <th>Billing_address</th>
+                <th>Vat_number</th>
+                <th>Bank_account_number</th>
+                <th>Created_at</th>
+                <th>Updated_at</th>
+                <th>Deleted_at</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for vendor in vendors %}
+            <tr>
+                <td>{{ vendor.vendorId }}</td>
+                <td>{{ vendor.email }}</td>
+                <td>{{ vendor.name }}</td>
+                <td>{{ vendor.category }}</td>
+                <td>{{ vendor.primaryCountry }}</td>
+                <td>{{ vendor.primaryPostalcode }}</td>
+                <td>{{ vendor.primaryCity }}</td>
+                <td>{{ vendor.primaryAddress }}</td>
+                <td>{{ vendor.billingCountry }}</td>
+                <td>{{ vendor.billingPostalcode }}</td>
+                <td>{{ vendor.billingCity }}</td>
+                <td>{{ vendor.billingAddress }}</td>
+                <td>{{ vendor.vatNumber }}</td>
+                <td>{{ vendor.bankAccountNumber }}</td>
+                <td>{{ vendor.createdAt ? vendor.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ vendor.updatedAt ? vendor.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ vendor.deletedAt ? vendor.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('vendor_show', {'vendor': vendor.vendorId}) }}">show</a>
+                    <a href="{{ path('vendor_edit', {'vendor': vendor.vendorId}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="18">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('vendor_new') }}">Create new</a>
+{% endblock %}

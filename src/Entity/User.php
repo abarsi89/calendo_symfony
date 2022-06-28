@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -18,7 +20,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\Column(type="guid")
      */
-    private $user_id;
+    private $userId;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -26,9 +28,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $email;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
+     * @ORM\Column(type="boolean")
      */
-    private $email_verified_at;
+    private $isVerified = false;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -41,38 +43,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="json")
+     * @ORM\ManyToMany(targetEntity=Role::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_roles",
+     *     joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="user_id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="role_id")}
+     *     )
      */
     private $roles = [];
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $created_at;
+    private $createdAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $updated_at;
+    private $updatedAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $deleted_at;
+    private $deletedAt;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\ManyToMany(targetEntity=Vendor::class, inversedBy="users")
+     * @ORM\JoinTable(name="users_vendors",
+     *     joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="user_id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="vendor_id", referencedColumnName="vendor_id")}
+     *     )
      */
-    private $isVerified = false;
+    private $vendor;
+
+    public function __construct()
+    {
+        $this->roles = new ArrayCollection();
+    }
 
     public function getUserId(): ?string
     {
-        return $this->user_id;
+        return $this->userId;
     }
 
-    public function setUserId(string $user_id): self
+    public function setUserId(string $userId): self
     {
-        $this->user_id = $user_id;
+        $this->userId = $userId;
 
         return $this;
     }
@@ -89,14 +104,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getEmailVerifiedAt(): ?\DateTimeInterface
+    public function isVerified(): bool
     {
-        return $this->email_verified_at;
+        return $this->isVerified;
     }
 
-    public function setEmailVerifiedAt(?\DateTimeInterface $email_verified_at): self
+    public function setIsVerified(bool $isVerified): self
     {
-        $this->email_verified_at = $email_verified_at;
+        $this->isVerified = $isVerified;
 
         return $this;
     }
@@ -125,54 +140,85 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRoles()
+    /**
+     * @return array
+     */
+    public function getRoles(): array
     {
-        $roles = $this->roles;
+        $roles = $this->roles->toArray();
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
 
-    public function setRoles(array $roles): self
+    public function addRole(Role $role): self
     {
-        $this->roles = $roles;
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+            $role->addUser($this);
+        }
+        return $this;
+    }
+
+    public function removeRole(Role $role): self
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
+            $role->removeUser($this);
+        }
+        return $this;
+    }
+
+    public function addVendor(Vendor $vendor): self
+    {
+//        if (!$this->vendor->contains($vendor)) {
+            $this->vendor[] = $vendor;
+//            $vendor->addUser($this);
+//        }
+
+        return $this;
+    }
+
+    public function removeVendor(Vendor $vendor): self
+    {
+        $this->vendor->removeElement($vendor);
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeInterface
     {
-        return $this->updated_at;
+        return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updated_at): self
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
     {
-        $this->updated_at = $updated_at;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
 
     public function getDeletedAt(): ?\DateTimeInterface
     {
-        return $this->deleted_at;
+        return $this->deletedAt;
     }
 
-    public function setDeletedAt(?\DateTimeInterface $deleted_at): self
+    public function setDeletedAt(?\DateTimeInterface $deletedAt): self
     {
-        $this->deleted_at = $deleted_at;
+        $this->deletedAt = $deletedAt;
 
         return $this;
     }
@@ -220,14 +266,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // TODO: Implement @method string getUserIdentifier()
     }
 
-    public function isVerified(): bool
+    public function getVendor(): ?Vendor
     {
-        return $this->isVerified;
+        return $this->vendor;
     }
 
-    public function setIsVerified(bool $isVerified): self
+    public function setVendor(?Vendor $vendor): self
     {
-        $this->isVerified = $isVerified;
+        $this->vendor = $vendor;
 
         return $this;
     }

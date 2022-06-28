@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vendor{% endblock %}
+
+{% block body %}
+    <h1>Vendor</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Vendor_id</th>
+                <td>{{ vendor.vendorId }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ vendor.email }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ vendor.name }}</td>
+            </tr>
+            <tr>
+                <th>Category</th>
+                <td>{{ vendor.category }}</td>
+            </tr>
+            <tr>
+                <th>Primary_country</th>
+                <td>{{ vendor.primaryCountry }}</td>
+            </tr>
+            <tr>
+                <th>Primary_postalcode</th>
+                <td>{{ vendor.primaryPostalcode }}</td>
+            </tr>
+            <tr>
+                <th>Primary_city</th>
+                <td>{{ vendor.primaryCity }}</td>
+            </tr>
+            <tr>
+                <th>Primary_address</th>
+                <td>{{ vendor.primaryAddress }}</td>
+            </tr>
+            <tr>
+                <th>Billing_country</th>
+                <td>{{ vendor.billingCountry }}</td>
+            </tr>
+            <tr>
+                <th>Billing_postalcode</th>
+                <td>{{ vendor.billingPostalcode }}</td>
+            </tr>
+            <tr>
+                <th>Billing_city</th>
+                <td>{{ vendor.billingCity }}</td>
+            </tr>
+            <tr>
+                <th>Billing_address</th>
+                <td>{{ vendor.billingAddress }}</td>
+            </tr>
+            <tr>
+                <th>Vat_number</th>
+                <td>{{ vendor.vatNumber }}</td>
+            </tr>
+            <tr>
+                <th>Bank_account_number</th>
+                <td>{{ vendor.bankAccountNumber }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ vendor.createdAt ? vendor.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Updated_at</th>
+                <td>{{ vendor.updatedAt ? vendor.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Deleted_at</th>
+                <td>{{ vendor.deletedAt ? vendor.deletedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('vendor_index') }}">back to list</a>
+
+    <a href="{{ path('vendor_edit', {'vendor': vendor.vendorId}) }}">edit</a>
+
+    {{ include('vendor/_delete_form.html.twig') }}
+{% endblock %}

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\RegistrationFormType;
+use App\Form\RegistrationType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use App\Security\LoginFormAuthenticator;
@@ -30,14 +30,14 @@ class RegistrationController extends AbstractController
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): Response
     {
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form = $this->createForm(RegistrationType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
             $data = $form->getData();
 
-            $user->setId(Uuid::v4());
+            $user->setUserId(Uuid::v4());
             $user->setEmail($data->getEmail());
             $user->setName($data->getName());
             $user->setCreatedAt(new \DateTimeImmutable());
