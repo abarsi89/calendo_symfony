@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}VendorAddress index{% endblock %}
+
+{% block body %}
+    <h1>VendorAddress index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Postalcode</th>
+                <th>City</th>
+                <th>Address</th>
+                <th>IsPrimary</th>
+                <th>IsBilling</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for vendor_address in vendor_addresses %}
+            <tr>
+                <td>{{ vendor_address.country }}</td>
+                <td>{{ vendor_address.postalcode }}</td>
+                <td>{{ vendor_address.city }}</td>
+                <td>{{ vendor_address.address }}</td>
+                <td>{{ vendor_address.isPrimary ? 'Yes' : 'No' }}</td>
+                <td>{{ vendor_address.isBilling ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_vendor_address_show', {'vendorAddressId': vendor_address.vendorAddressId}) }}">show</a>
+                    <a href="{{ path('app_vendor_address_edit', {'vendorAddressId': vendor_address.vendorAddressId}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_vendor_address_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}VendorAddress{% endblock %}
+
+{% block body %}
+    <h1>VendorAddress</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Country</th>
+                <td>{{ vendor_address.country }}</td>
+            </tr>
+            <tr>
+                <th>Postalcode</th>
+                <td>{{ vendor_address.postalcode }}</td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td>{{ vendor_address.city }}</td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{ vendor_address.address }}</td>
+            </tr>
+            <tr>
+                <th>IsPrimary</th>
+                <td>{{ vendor_address.isPrimary ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>IsBilling</th>
+                <td>{{ vendor_address.isBilling ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_vendor_address_index') }}">back to list</a>
+
+    <a href="{{ path('app_vendor_address_edit', {'vendorAddressId': vendor_address.vendorAddressId}) }}">edit</a>
+
+    {{ include('vendor_address/_delete_form.html.twig') }}
+{% endblock %}

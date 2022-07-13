@@ -36,46 +36,6 @@ class Vendor
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $primaryCountry;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $primaryPostalcode;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $primaryCity;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $primaryAddress;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $billingCountry;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $billingPostalcode;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $billingCity;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $billingAddress;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     private $vatNumber;
 
     /**
@@ -103,9 +63,15 @@ class Vendor
      */
     private $users;
 
+    /**
+     * @ORM\OneToMany(targetEntity=VendorAddress::class, mappedBy="vendor")
+     */
+    private $vendorAddresses;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->vendorAddresses = new ArrayCollection();
     }
 
     public function getVendorId(): ?string
@@ -161,102 +127,6 @@ class Vendor
     public function setCategory(string $category): self
     {
         $this->category = $category;
-
-        return $this;
-    }
-
-    public function getPrimaryCountry(): ?string
-    {
-        return $this->primaryCountry;
-    }
-
-    public function setPrimaryCountry(string $primaryCountry): self
-    {
-        $this->primaryCountry = $primaryCountry;
-
-        return $this;
-    }
-
-    public function getPrimaryPostalcode(): ?string
-    {
-        return $this->primaryPostalcode;
-    }
-
-    public function setPrimaryPostalcode(string $primaryPostalcode): self
-    {
-        $this->primaryPostalcode = $primaryPostalcode;
-
-        return $this;
-    }
-
-    public function getPrimaryCity(): ?string
-    {
-        return $this->primaryCity;
-    }
-
-    public function setPrimaryCity(string $primaryCity): self
-    {
-        $this->primaryCity = $primaryCity;
-
-        return $this;
-    }
-
-    public function getPrimaryAddress(): ?string
-    {
-        return $this->primaryAddress;
-    }
-
-    public function setPrimaryAddress(string $primaryAddress): self
-    {
-        $this->primaryAddress = $primaryAddress;
-
-        return $this;
-    }
-
-    public function getBillingCountry(): ?string
-    {
-        return $this->billingCountry;
-    }
-
-    public function setBillingCountry(string $billingCountry): self
-    {
-        $this->billingCountry = $billingCountry;
-
-        return $this;
-    }
-
-    public function getBillingPostalcode(): ?string
-    {
-        return $this->billingPostalcode;
-    }
-
-    public function setBillingPostalcode(string $billingPostalcode): self
-    {
-        $this->billingPostalcode = $billingPostalcode;
-
-        return $this;
-    }
-
-    public function getBillingCity(): ?string
-    {
-        return $this->billingCity;
-    }
-
-    public function setBillingCity(string $billingCity): self
-    {
-        $this->billingCity = $billingCity;
-
-        return $this;
-    }
-
-    public function getBillingAddress(): ?string
-    {
-        return $this->billingAddress;
-    }
-
-    public function setBillingAddress(string $billingAddress): self
-    {
-        $this->billingAddress = $billingAddress;
 
         return $this;
     }
@@ -345,6 +215,36 @@ class Vendor
             // set the owning side to null (unless already changed)
             if ($user->getVendor() === $this) {
                 $user->setVendor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, VendorAddress>
+     */
+    public function getVendorAddresses(): Collection
+    {
+        return $this->vendorAddresses;
+    }
+
+    public function addVendorAddress(VendorAddress $vendorAddress): self
+    {
+        if (!$this->vendorAddresses->contains($vendorAddress)) {
+            $this->vendorAddresses[] = $vendorAddress;
+            $vendorAddress->setVendor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVendorAddress(VendorAddress $vendorAddress): self
+    {
+        if ($this->vendorAddresses->removeElement($vendorAddress)) {
+            // set the owning side to null (unless already changed)
+            if ($vendorAddress->getVendor() === $this) {
+                $vendorAddress->setVendor(null);
             }
         }
 

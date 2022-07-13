@@ -1,0 +1,11 @@
+{{ form_start(form) }}
+<h1>Create new Vendor</h1>
+
+    {{ form_widget(form) }}
+
+<h1>Create new Master User for Vendor</h1>
+
+    {{ form_widget(form2) }}
+
+    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

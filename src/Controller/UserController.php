@@ -2,65 +2,113 @@
 
 namespace App\Controller;
 
+use App\Entity\Role;
+use App\Entity\Vendor;
+use App\Form\RegistrationType;
+use App\Form\UserType;
+use App\Form\VendorType;
+use App\Repository\RoleRepository;
+use App\Repository\UserRepository;
+use App\Repository\VendorRepository;
 use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Uid\Uuid;
 
 class UserController extends AbstractController
 {
 
-    public function index(): JsonResponse
+    public function index(UserRepository $userRepository): Response
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/UserController.php',
+        return $this->render('user/index.html.twig', [
+            'users' => $userRepository->findAll(),
         ]);
     }
 
-    public function createUser(ManagerRegistry $doctrine): Response
+    public function new(Request $request, UserRepository $userRepository, RoleRepository $roleRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
-        $entityManager = $doctrine->getManager();
-
         $user = new User();
-        $user->setEmail('admin2@calendo.hu');
-        $user->setName('Admin2');
-        $user->setCreatedAt(new \DateTimeImmutable());
 
-        // tell Doctrine you want to (eventually) save the Product (no queries yet)
-        $entityManager->persist($user);
+        $form = $this->createForm(RegistrationType::class, $user);
+        $form->handleRequest($request);
 
-        // actually executes the queries (i.e. the INSERT query)
-        $entityManager->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
 
-        return new Response('Saved new user with id '.$user->getId());
-    }
+            $data = $form->getData();
 
-    public function showUser(ManagerRegistry $doctrine, string $id): Response
-    {
-        $user = $doctrine->getRepository(User::class)->find($id);
+            $user->setUserId(Uuid::v4());
+            $user->setEmail($data->getEmail());
+            $user->setName($data->getName());
+            $user->setCreatedAt(new \DateTimeImmutable());
 
-        if (!$user) {
-            throw $this->createNotFoundException(
-                'No product found for id '.$id
+            // encode the plain password
+            $user->setPassword(
+                $userPasswordHasher->hashPassword(
+                    $user,
+                    $form->get('plainPassword')->getData()
+                )
             );
+
+            $userRepository->add($user, true);
+
+            $user->addRole($roleRepository->findOneBy(['name' => Role::ROLE_ADMIN]));
+            $userRepository->add($user, true);
+
+            return $this->redirectToRoute('vendor_index', [], Response::HTTP_SEE_OTHER);
         }
 
-//        return new Response('Check out this great product: '.$product->getName());
+        return $this->renderForm('vendor/new.html.twig', [
+            'vendor' => $user,
+            'form' => $form,
+        ]);
+    }
 
-        // or render a template
-        // in the template, print things with {{ product.name }}
-        // return $this->render('product/show.html.twig', ['product' => $product]);
-
-        // the template path is the relative file path from `templates/`
+    public function show(User $user): Response
+    {
         return $this->render('user/show.html.twig', [
-            // this array defines the variables passed to the template,
-            // where the key is the variable name and the value is the variable value
-            // (Twig recommends using snake_case variable names: 'foo_bar' instead of 'fooBar')
             'user' => $user,
         ]);
+    }
+
+    public function edit(Request $request, User $user, UserRepository $userRepository, RoleRepository $roleRepository): Response
+    {
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $oldRole = current($user->getRoles());
+            $newRole = $request->request->get('user')['role'];
+            if($oldRole) {
+                $user->removeRole($oldRole);
+            }
+            if ($oldRole != $newRole) {
+                $user->addRole($roleRepository->findOneBy(['name' => $newRole]));
+            }
+
+            $userRepository->add($user, true);
+
+            return $this->redirectToRoute('user_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('user/edit.html.twig', [
+            'user' => $user,
+            'form' => $form,
+        ]);
+    }
+
+    public function delete(Request $request, User $user, UserRepository $userRepository): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$user->getUserId(), $request->request->get('_token'))) {
+            $userRepository->remove($user, true);
+        }
+
+        return $this->redirectToRoute('user_index', [], Response::HTTP_SEE_OTHER);
     }
 }

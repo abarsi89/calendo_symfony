@@ -75,6 +75,8 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
             throw new CustomUserMessageAuthenticationException('Email could not be found.');
         }
 
+//        $user = $this->addPasswordToUserEntity($user);
+
         return $user;
     }
 
@@ -106,5 +108,19 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
     protected function getLoginUrl(): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+    }
+
+    /**
+     * Find the password of the User from Login table and add to the User Entity
+     * @param User $user
+     * @return User
+     */
+    private function addPasswordToUserEntity(User $user): User
+    {
+        $password = $this->entityManager->getRepository(Login::class)->findOneBy(['user_id' => $user->getUserId()]);
+
+        $user->setPassword($password);
+
+        return $user;
     }
 }
