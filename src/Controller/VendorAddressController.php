@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @Route("/vendor/address")
@@ -31,6 +32,7 @@ class VendorAddressController extends AbstractController
     public function new(Request $request, VendorAddressRepository $vendorAddressRepository): Response
     {
         $vendorAddress = new VendorAddress();
+        $vendorAddress->setVendorAddressId(Uuid::v4());
         $form = $this->createForm(VendorAddressType::class, $vendorAddress);
         $form->handleRequest($request);
 

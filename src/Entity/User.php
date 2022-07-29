@@ -75,9 +75,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $vendor;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Event::class, mappedBy="users")
+     */
+    private $events;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
+        $this->events = new ArrayCollection();
     }
 
     public function getUserId(): ?string
@@ -276,6 +282,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setVendor(?Vendor $vendor): self
     {
         $this->vendor = $vendor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvent(Event $event): self
+    {
+        if (!$this->events->contains($event)) {
+            $this->events[] = $event;
+            $event->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(Event $event): self
+    {
+        if ($this->events->removeElement($event)) {
+            $event->removeUser($this);
+        }
 
         return $this;
     }

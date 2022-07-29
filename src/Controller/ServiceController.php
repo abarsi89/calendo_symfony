@@ -14,11 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
 /**
- * @Security("is_granted('IS_AUTHENTICATED_FULLY')")
  * @Route("/service")
  */
 class ServiceController extends AbstractController
 {
+//* @Security("is_granted('IS_AUTHENTICATED_FULLY')")
     /**
      * @Route("/", name="app_service_index", methods={"GET"})
      */

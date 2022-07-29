@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\VendorAddressRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -51,6 +53,16 @@ class VendorAddress
      * @ORM\JoinColumn(name="vendor_id", referencedColumnName="vendor_id", nullable=false)
      */
     private $vendor;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Event::class, mappedBy="address")
+     */
+    private $events;
+
+    public function __construct()
+    {
+        $this->events = new ArrayCollection();
+    }
 
     public function getVendorAddressId(): ?string
     {
@@ -112,24 +124,24 @@ class VendorAddress
         return $this;
     }
 
-    public function isPrimary(): ?bool
+    public function getIsPrimary(): ?bool
     {
         return $this->isPrimary;
     }
 
-    public function setPrimary(?bool $isPrimary): self
+    public function setIsPrimary(?bool $isPrimary): self
     {
         $this->isPrimary = $isPrimary;
 
         return $this;
     }
 
-    public function isBilling(): ?bool
+    public function getIsBilling(): ?bool
     {
         return $this->isBilling;
     }
 
-    public function setBilling(?bool $isBilling): self
+    public function setIsBilling(?bool $isBilling): self
     {
         $this->isBilling = $isBilling;
 
@@ -146,5 +158,40 @@ class VendorAddress
         $this->vendor = $vendor;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvent(Event $event): self
+    {
+        if (!$this->events->contains($event)) {
+            $this->events[] = $event;
+            $event->setAddress($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(Event $event): self
+    {
+        if ($this->events->removeElement($event)) {
+            // set the owning side to null (unless already changed)
+            if ($event->getAddress() === $this) {
+                $event->setAddress(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getFullAddress()
+    {
+        return $this->getCity() . ", " . $this->getAddress();
     }
 }
