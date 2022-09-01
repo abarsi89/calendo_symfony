@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\Login;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -74,8 +75,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
             // fail authentication with a custom error
             throw new CustomUserMessageAuthenticationException('Email could not be found.');
         }
-
-//        $user = $this->addPasswordToUserEntity($user);
+//dd($user);
+        $user = $this->addPasswordToUserEntity($user);
+//        dd($user);
 
         return $user;
     }
@@ -117,7 +119,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
      */
     private function addPasswordToUserEntity(User $user): User
     {
-        $password = $this->entityManager->getRepository(Login::class)->findOneBy(['user_id' => $user->getUserId()]);
+        $password = $this->entityManager->getRepository(Login::class)->findOneBy(['userId' => $user->getUserId()])->getPassword();
 
         $user->setPassword($password);
 

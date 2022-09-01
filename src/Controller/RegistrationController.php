@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Login;
+use App\Entity\Role;
 use App\Entity\User;
 use App\Form\RegistrationType;
+use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use App\Security\LoginFormAuthenticator;
@@ -27,7 +30,7 @@ class RegistrationController extends AbstractController
         $this->emailVerifier = $emailVerifier;
     }
 
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): Response
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, UserRepository $userRepository, RoleRepository $roleRepository, LoginFormAuthenticator $loginAuthenticator, GuardAuthenticatorHandler $guard): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationType::class, $user);
@@ -43,7 +46,9 @@ class RegistrationController extends AbstractController
             $user->setCreatedAt(new \DateTimeImmutable());
 
             // encode the plain password
-            $user->setPassword(
+            $login = new Login();
+            $login->setUserId($user->getUserId());
+            $login->setPassword(
             $userPasswordHasher->hashPassword(
                     $user,
                     $form->get('plainPassword')->getData()
@@ -51,7 +56,11 @@ class RegistrationController extends AbstractController
             );
 
             $entityManager->persist($user);
+            $entityManager->persist($login);
             $entityManager->flush();
+
+            $user->addRole($roleRepository->findOneBy(['name' => Role::ROLE_CUSTOMER]));
+            $userRepository->add($user, true);
 
             // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('email_verification', $user,
@@ -69,7 +78,7 @@ class RegistrationController extends AbstractController
             //This is how the User could be logged after the registration
             //Guard handle it
             //'main' is your main Firewall. You can check it in config/packages/security.yaml
-            return $guard->authenticateUserAndHandleSuccess($user, $request, $login, 'main');
+            return $guard->authenticateUserAndHandleSuccess($user, $request, $loginAuthenticator, 'main');
 
         }
 
